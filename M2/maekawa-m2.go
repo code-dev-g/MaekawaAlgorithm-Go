@@ -18,17 +18,17 @@ var colorWhite = "\033[37m"
 
 // Process represents a process in the system.
 type Process struct {
-	id int
-	state string
-	queue   []int
+	id     int
+	state  string
+	quorum []int
 }
 
 // NewProcess creates a new process.
 func NewProcess(id int) *Process {
 	return &Process{
-		id: id,
-		state: "ready",
-		queue: make([]int, 0),
+		id:     id,
+		state:  "ready",
+		quorum: make([]int, 0),
 	}
 }
 
@@ -37,15 +37,15 @@ func (process *Process) RequestCS() {
 	fmt.Println(string(colorCyan), "Process", process.id, "requests CS", string(colorReset))
 
 	// Send request messages to all processes in the quorum.
-	for _, pid := range process.queue {
+	for _, pid := range process.quorum {
 		fmt.Println("Process", process.id, "sends request message to", pid)
 	}
 
 	// Wait for reply messages from a majority of processes in the quorum.
 	granted := false
-	for i := 0; i < len(process.queue); i++ {
+	for i := 0; i < len(process.quorum); i++ {
 		time.Sleep(time.Duration(rand.Intn(1000)) * time.Millisecond)
-		pid := process.queue[i]
+		pid := process.quorum[i]
 		fmt.Println("Process", process.id, "waits for reply message from", pid)
 
 		// If a majority of processes have granted permission, enter the critical section.
@@ -70,7 +70,7 @@ func (process *Process) ReleaseCS() {
 	fmt.Println(string(colorRed), "Process", process.id, "releases CS", string(colorReset))
 
 	// Send release messages to all processes in the quorum.
-	for _, pid := range process.queue {
+	for _, pid := range process.quorum {
 		fmt.Println("Process", process.id, "sends release message to", pid)
 	}
 
@@ -80,12 +80,12 @@ func (process *Process) ReleaseCS() {
 
 func main() {
 
-    fmt.Printf("\n")
-    fmt.Println(string(colorRed), "-------------------", string(colorReset))
-    fmt.Println(string(colorRed), "Maekawa's Algorithm", string(colorReset))
-    fmt.Println(string(colorRed), "-------------------", string(colorReset))
-    fmt.Printf("\n")
-	
+	fmt.Printf("\n")
+	fmt.Println(string(colorRed), "-------------------", string(colorReset))
+	fmt.Println(string(colorRed), "Maekawa's Algorithm", string(colorReset))
+	fmt.Println(string(colorRed), "-------------------", string(colorReset))
+	fmt.Printf("\n")
+
 	// Create a set of processes.
 	var numProcs int
 	fmt.Println(string(colorCyan), "Enter the number of processes: ", string(colorReset))
@@ -98,32 +98,32 @@ func main() {
 
 	// Set the quorums for each process.
 	for i := 0; i < numProcs; i++ {
-		processes[i].queue = []int{(i + 1) % numProcs, (i + 2) % numProcs}
+		processes[i].quorum = []int{(i + 1) % numProcs, (i + 2) % numProcs}
 	}
 
 	var numberOfIterations int
 	fmt.Println(string(colorCyan), "Enter the number of iterations: ", string(colorReset))
 	fmt.Scanln(&numberOfIterations)
 
-    // Print the quorums.
-    fmt.Printf("\n")
-    fmt.Println(string(colorPurple), "-------------------", string(colorReset))
-    fmt.Println(string(colorPurple), "Quorums", string(colorReset))
-    fmt.Println(string(colorPurple), "-------------------", string(colorReset))
-    for _, process := range processes {
-        fmt.Printf("Process %d: ", process.id)
-        for _, pid := range process.queue {
-            fmt.Printf("%d ", pid)
-        }
-        fmt.Printf("\n")
-    }
-    fmt.Println(string(colorPurple), "-------------------", string(colorReset))
+	// Print the quorums.
+	fmt.Printf("\n")
+	fmt.Println(string(colorPurple), "-------------------", string(colorReset))
+	fmt.Println(string(colorPurple), "Quorums", string(colorReset))
+	fmt.Println(string(colorPurple), "-------------------", string(colorReset))
+	for _, process := range processes {
+		fmt.Printf("Process %d: ", process.id)
+		for _, pid := range process.quorum {
+			fmt.Printf("%d ", pid)
+		}
+		fmt.Printf("\n")
+	}
+	fmt.Println(string(colorPurple), "-------------------", string(colorReset))
 
-    fmt.Printf("\n")
+	fmt.Printf("\n")
 
 	// Run the simulation for 1000 iterations.
 	for i := 0; i < numberOfIterations; i++ {
-        fmt.Println(string(colorYellow), "Iteration", i+1, string(colorReset))
+		fmt.Println(string(colorYellow), "Iteration", i+1, string(colorReset))
 		// Randomly select a process to request the critical section.
 		pid := rand.Intn(numProcs)
 		processes[pid].RequestCS()
@@ -132,8 +132,8 @@ func main() {
 		for _, process := range processes {
 			if process.state == "critical" {
 				process.ReleaseCS()
-            }
-        }
-        fmt.Printf("\n")
-    }
+			}
+		}
+		fmt.Printf("\n")
+	}
 }
